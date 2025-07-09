@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+# ASP.NET Framework 4.5 跨浏览器人机验证控件
 
-## Project info
+这是一个基于 ASP.NET Framework 4.5 的跨浏览器人机验证控件演示项目。
 
-**URL**: https://lovable.dev/projects/5a6f1c8d-db5c-4a0c-9641-acb5b385b826
+## 项目特性
 
-## How can I edit this code?
+### 🔧 浏览器兼容性
+- Internet Explorer 8+
+- Google Chrome (全版本)
+- Mozilla Firefox (全版本)
+- Safari 5.0+
+- Microsoft Edge (全版本)
 
-There are several ways of editing your application.
+### 🔒 验证方式
+- 滑块拖拽验证
+- 数学题计算验证  
+- 图案点击验证
+- 支持验证模式切换
 
-**Use Lovable**
+### ⚡ 技术特性
+- 纯JavaScript实现，无第三方依赖
+- 响应式设计，支持触摸设备
+- 完整的ASP.NET服务器端集成
+- 事件回调机制和自定义样式支持
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5a6f1c8d-db5c-4a0c-9641-acb5b385b826) and start prompting.
+## 项目结构
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+/
+├── Default.aspx              # 主演示页面
+├── Default.aspx.cs           # 页面后台代码
+├── Site.Master               # 母版页
+├── Site.Master.cs            # 母版页后台代码
+├── Web.config                # 应用程序配置
+├── Global.asax               # 全局应用程序事件
+├── packages.config           # NuGet包配置
+└── Scripts/
+    └── CrossBrowserHumanCheck.js    # 人机验证控件脚本
 ```
 
-**Edit a file directly in GitHub**
+## 快速开始
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. 在Visual Studio中打开项目
+2. 还原NuGet包
+3. 编译并运行项目
+4. 访问Default.aspx查看演示
 
-**Use GitHub Codespaces**
+## 使用方法
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 1. 引用脚本文件
+```html
+<script src="Scripts/CrossBrowserHumanCheck.js"></script>
+```
 
-## What technologies are used for this project?
+### 2. 添加HTML容器
+```html
+<div id="humanCheckContainer"></div>
+<asp:HiddenField ID="hdnVerified" runat="server" />
+```
 
-This project is built with:
+### 3. JavaScript初始化
+```javascript
+var humanCheck = new CrossBrowserHumanCheck('humanCheckContainer', {
+    onVerificationComplete: function(isVerified) {
+        document.getElementById('hdnVerified').value = isVerified;
+    }
+});
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 4. 服务器端验证
+```csharp
+protected void btnSubmit_Click(object sender, EventArgs e)
+{
+    if (hdnVerified.Value == "true")
+    {
+        // 验证通过，处理表单提交
+        Response.Write("验证成功！");
+    }
+    else
+    {
+        // 验证失败
+        ClientScript.RegisterStartupScript(this.GetType(), 
+            "alert", "alert('请完成人机验证！');", true);
+    }
+}
+```
 
-## How can I deploy this project?
+## 系统要求
 
-Simply open [Lovable](https://lovable.dev/projects/5a6f1c8d-db5c-4a0c-9641-acb5b385b826) and click on Share -> Publish.
+- .NET Framework 4.5+
+- Visual Studio 2012+
+- IIS 7.0+
 
-## Can I connect a custom domain to my Lovable project?
+## 许可证
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT License
