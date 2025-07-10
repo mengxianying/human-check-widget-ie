@@ -149,52 +149,82 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            backdrop-filter: blur(3px);
         }
 
         .modal-content {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 12px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 10px 20px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            max-width: 420px;
             width: 90%;
             max-height: 80vh;
-            overflow-y: auto;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+            padding: 24px 24px 0 24px;
+            background: transparent;
         }
 
         .modal-header h3 {
             margin: 0;
-            color: #333;
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         .close-btn {
             font-size: 24px;
-            color: #999;
+            color: #6b7280;
             cursor: pointer;
             line-height: 1;
-            padding: 0;
-            background: none;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.6);
             border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .close-btn:hover {
-            color: #333;
+            color: #374151;
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 16px 24px 24px 24px;
+        }
+
+        /* 人机验证控件在弹窗中的样式调整 */
+        .modal-body .cb-human-check-widget {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            margin: 0;
+            max-width: none;
         }
         
         .btn-secondary {

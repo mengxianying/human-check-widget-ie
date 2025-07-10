@@ -232,7 +232,7 @@
     this.isDragging = false;
     this.mathProblem = { a: 0, b: 0, answer: 0 };
     this.patternClicks = [];
-    this.requiredPattern = [1, 3, 5];
+    this.requiredPattern = this.generateRandomPattern();
     this.uniqueId = BrowserUtils.generateId();
     
     if (!this.container) {
@@ -248,6 +248,21 @@
     this.addStyles();
     this.render();
     this.bindEvents();
+  };
+
+  // 生成随机模式序列
+  CrossBrowserHumanCheck.prototype.generateRandomPattern = function() {
+    var numbers = [];
+    // 从1-6中随机选择3个不重复的数字
+    var available = [1, 2, 3, 4, 5, 6];
+    for (var i = 0; i < 3; i++) {
+      var randomIndex = Math.floor(Math.random() * available.length);
+      numbers.push(available[randomIndex]);
+      available.splice(randomIndex, 1);
+    }
+    // 按升序排列
+    numbers.sort(function(a, b) { return a - b; });
+    return numbers;
   };
 
   // 生成数学题
@@ -588,21 +603,20 @@
           '</div>'
         ].join('');
 
-/*
       case 'pattern':
         var buttons = '';
         for (var i = 1; i <= 6; i++) {
           buttons += '<button class="cb-pattern-btn" data-index="' + i + '">' + i + '</button>';
         }
+        var instructionText = '请按顺序点击第' + this.requiredPattern.join('、') + '个方块';
         return [
           '<div class="cb-mode-content">',
-            '<p class="cb-instruction">请按顺序点击第1、3、5个方块</p>',
+            '<p class="cb-instruction">' + instructionText + '</p>',
             '<div class="cb-pattern-container">',
               buttons,
             '</div>',
           '</div>'
         ].join('');
-*/
 
       default:
         return '';
@@ -961,6 +975,11 @@
     this.sliderValue = 0;
     this.patternClicks = [];
     this.generateMathProblem();
+    
+    // 如果切换到pattern模式，重新生成随机序列
+    if (this.currentMode === 'pattern') {
+      this.requiredPattern = this.generateRandomPattern();
+    }
     
     var content = BrowserUtils.querySelector(this.container, '.cb-content');
     if (content) {
