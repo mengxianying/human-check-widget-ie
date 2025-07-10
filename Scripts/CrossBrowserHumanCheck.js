@@ -538,12 +538,12 @@
     document.getElementsByTagName('head')[0].appendChild(style);
   };
 
-  // 渲染控件HTML
+    // 渲染控件HTML  🛡️ 人机验证
   CrossBrowserHumanCheck.prototype.render = function() {
     var html = [
       '<div class="cb-human-check-widget">',
         '<div class="cb-header">',
-          '<div class="cb-title">🛡️ 人机验证</div>',
+          '<div class="cb-title"></div>',
           '<button class="cb-switch-btn" title="切换验证方式">⟲</button>',
         '</div>',
         '<div class="cb-content">',
@@ -587,7 +587,8 @@
             '</div>',
           '</div>'
         ].join('');
-        
+
+/*
       case 'pattern':
         var buttons = '';
         for (var i = 1; i <= 6; i++) {
@@ -601,7 +602,8 @@
             '</div>',
           '</div>'
         ].join('');
-        
+*/
+
       default:
         return '';
     }

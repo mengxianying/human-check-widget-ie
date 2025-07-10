@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>跨浏览器人机验证控件 - ASP.NET演示</title>
     
     <!-- 引入人机验证控件 -->
-    <script src="Scripts/CrossBrowserHumanCheck.js"></script>
+<!-- 修改后 -->
+<script src="<%= ResolveUrl("~/Scripts/CrossBrowserHumanCheck.js") %>"></script>
     
     <style type="text/css">
         body {
@@ -305,18 +305,7 @@
                 <div class="form-group">
                     <label for="txtEmail">邮箱：</label>
                     <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" placeholder="请输入邮箱地址" />
-                    <asp:RequiredFieldValidator ID="rfvEmail" runat="server" 
-                        ControlToValidate="txtEmail" 
-                        ErrorMessage="请输入邮箱" 
-                        ForeColor="Red" 
-                        Display="Dynamic" />
-                    <asp:RegularExpressionValidator ID="revEmail" runat="server" 
-                        ControlToValidate="txtEmail" 
-                        ErrorMessage="邮箱格式不正确" 
-                        ValidationExpression="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*" 
-                        ForeColor="Red" 
-                        Display="Dynamic" />
-                </div>
+        </div>
                 
                 <!-- 人机验证按钮 -->
                 <div class="form-group">
@@ -335,13 +324,14 @@
                     <asp:HiddenField ID="hdnPhoneVerified" runat="server" />
                 </div>
                 
-                <asp:Button ID="btnSubmit" runat="server" CssClass="btn" Text="提交表单" OnClick="btnSubmit_Click" />
-                <asp:Button ID="btnReset" runat="server" CssClass="btn btn-secondary" Text="重置表单" OnClick="btnReset_Click" CausesValidation="false" />
+                <asp:Button ID="btnSubmit" runat="server" CssClass="btn" Text="提交表单" OnClick="BtnSubmit_Click" />
+                <asp:Button ID="btnReset" runat="server" CssClass="btn btn-secondary" Text="重置表单" OnClick="BtnReset_Click" CausesValidation="false" />
                 
                 <!-- 结果显示 -->
                 <div id="resultMessage" class="result">
-                    <asp:Label ID="lblMessage" runat="server" />
+                      <asp:Label ID="lblMessage" runat="server" />
                 </div>
+              
             </div>
             
             <!-- 控件特性展示 -->

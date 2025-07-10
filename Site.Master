@@ -15,7 +15,10 @@
     <!-- 引入人机验证控件 -->
     <script src="Scripts/CrossBrowserHumanCheck.js"></script>
     
-    <webopt:bundleReference runat="server" path="~/Content/css" />
+
+
+
+
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
     <style type="text/css">
