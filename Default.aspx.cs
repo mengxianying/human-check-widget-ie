@@ -28,9 +28,12 @@ public partial class _Default : System.Web.UI.Page
             }
 
             // 检查人机验证
-            if (hdnVerified.Value != "true")
+            bool emailVerified = hdnEmailVerified.Value == "true";
+            bool phoneVerified = hdnPhoneVerified.Value == "true";
+            
+            if (!emailVerified && !phoneVerified)
             {
-                ShowMessage("请先完成人机验证！", false);
+                ShowMessage("请至少完成一项人机验证（邮箱或短信）！", false);
                 return;
             }
 
@@ -43,7 +46,15 @@ public partial class _Default : System.Web.UI.Page
             SaveUserInfo(username, email);
 
             // 验证成功
-            ShowMessage($"表单提交成功！欢迎 {username}！", true);
+            string verificationInfo = "";
+            if (emailVerified && phoneVerified)
+                verificationInfo = "（邮箱和短信验证均已通过）";
+            else if (emailVerified)
+                verificationInfo = "（邮箱验证已通过）";
+            else if (phoneVerified)
+                verificationInfo = "（短信验证已通过）";
+                
+            ShowMessage($"表单提交成功！欢迎 {username}！{verificationInfo}", true);
             
             // 清空表单
             ClearForm();
@@ -84,14 +95,25 @@ public partial class _Default : System.Web.UI.Page
     {
         txtUsername.Text = "";
         txtEmail.Text = "";
-        hdnVerified.Value = "";
+        hdnEmailVerified.Value = "";
+        hdnPhoneVerified.Value = "";
         
-        // 重置人机验证控件
+        // 重置人机验证控件和状态显示
         string resetScript = @"
             setTimeout(function() {
-                if (window.humanCheck && typeof window.humanCheck.reset === 'function') {
-                    window.humanCheck.reset();
+                // 重置验证控件
+                if (window.emailHumanCheck && typeof window.emailHumanCheck.reset === 'function') {
+                    window.emailHumanCheck.reset();
                 }
+                if (window.phoneHumanCheck && typeof window.phoneHumanCheck.reset === 'function') {
+                    window.phoneHumanCheck.reset();
+                }
+                
+                // 重置状态显示
+                document.getElementById('emailStatus').textContent = '邮箱验证：未验证';
+                document.getElementById('emailStatus').className = 'status-text';
+                document.getElementById('phoneStatus').textContent = '短信验证：未验证';
+                document.getElementById('phoneStatus').className = 'status-text';
             }, 100);
         ";
         ClientScript.RegisterStartupScript(this.GetType(), "resetHumanCheck", resetScript, true);

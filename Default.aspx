@@ -106,6 +106,96 @@
         .btn:hover {
             background: #16a34a;
         }
+
+        .btn-primary {
+            background: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .verification-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .verification-status {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+
+        .status-verified {
+            background: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+        }
+
+        /* 遮罩层样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
         
         .btn-secondary {
             background: #6b7280;
@@ -185,7 +275,7 @@
             <!-- 页面头部 -->
             <div class="header">
                 <h1>跨浏览器人机验证控件</h1>
-                <p>ASP.NET Framework 4.5 演示</p>
+                <p>ASP.NET Framework 4.0 演示</p>
                 <p>完美兼容 IE8+ | Chrome | Firefox | Safari | Edge</p>
                 
                 <div class="browser-badges">
@@ -228,11 +318,21 @@
                         Display="Dynamic" />
                 </div>
                 
-                <!-- 人机验证控件容器 -->
+                <!-- 人机验证按钮 -->
                 <div class="form-group">
                     <label>人机验证：</label>
-                    <div id="humanCheckContainer"></div>
-                    <asp:HiddenField ID="hdnVerified" runat="server" />
+                    <div class="verification-buttons">
+                        <asp:Button ID="btnEmailVerify" runat="server" Text="人机验证email" 
+                            CssClass="btn btn-primary" OnClientClick="showEmailVerification(); return false;" />
+                        <asp:Button ID="btnPhoneVerify" runat="server" Text="人机验证phoneSMS" 
+                            CssClass="btn btn-primary" OnClientClick="showPhoneVerification(); return false;" />
+                    </div>
+                    <div class="verification-status">
+                        <span id="emailStatus" class="status-text">邮箱验证：未验证</span>
+                        <span id="phoneStatus" class="status-text">短信验证：未验证</span>
+                    </div>
+                    <asp:HiddenField ID="hdnEmailVerified" runat="server" />
+                    <asp:HiddenField ID="hdnPhoneVerified" runat="server" />
                 </div>
                 
                 <asp:Button ID="btnSubmit" runat="server" CssClass="btn" Text="提交表单" OnClick="btnSubmit_Click" />
@@ -331,31 +431,131 @@ protected void btnSubmit_Click(object sender, EventArgs e)
                 </div>
             </div>
         </div>
+
+        <!-- 邮箱验证遮罩层 -->
+        <div id="emailModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>邮箱人机验证</h3>
+                    <span class="close-btn" onclick="closeEmailModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="emailHumanCheckContainer" class="human-check-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 短信验证遮罩层 -->
+        <div id="phoneModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>短信人机验证</h3>
+                    <span class="close-btn" onclick="closePhoneModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="phoneHumanCheckContainer" class="human-check-container"></div>
+                </div>
+            </div>
+        </div>
     </form>
     
-    <!-- 初始化人机验证控件 -->
+    <!-- 弹窗模式人机验证控件 -->
     <script type="text/javascript">
-        // 页面加载完成后初始化控件
-        window.onload = function() {
-            try {
-                var humanCheck = new CrossBrowserHumanCheck('humanCheckContainer', {
-                    onVerificationComplete: function(isVerified) {
-                        // 更新隐藏字段的值
-                        var hiddenField = document.getElementById('<%= hdnVerified.ClientID %>');
-                        if (hiddenField) {
-                            hiddenField.value = isVerified ? 'true' : 'false';
+        // 全局变量存储验证控件实例
+        var emailHumanCheck = null;
+        var phoneHumanCheck = null;
+
+        // 显示邮箱验证弹窗
+        function showEmailVerification() {
+            document.getElementById('emailModal').style.display = 'flex';
+            
+            // 如果还没有初始化，则创建控件
+            if (!emailHumanCheck) {
+                try {
+                    emailHumanCheck = new CrossBrowserHumanCheck('emailHumanCheckContainer', {
+                        onVerificationComplete: function(isVerified) {
+                            document.getElementById('<%= hdnEmailVerified.ClientID %>').value = isVerified.toString();
+                            
+                            var statusElement = document.getElementById('emailStatus');
+                            if (isVerified) {
+                                statusElement.textContent = '邮箱验证：已通过';
+                                statusElement.className = 'status-text status-verified';
+                                showResult('邮箱人机验证通过！', true);
+                                setTimeout(function() {
+                                    closeEmailModal();
+                                }, 1500);
+                            } else {
+                                statusElement.textContent = '邮箱验证：验证失败';
+                                statusElement.className = 'status-text';
+                                showResult('邮箱人机验证失败，请重试！', false);
+                            }
                         }
-                        
-                        console.log('人机验证完成:', isVerified);
-                    }
-                });
-            } catch (e) {
-                console.error('初始化人机验证控件失败:', e);
-                document.getElementById('humanCheckContainer').innerHTML = 
-                    '<p style="color: red;">人机验证控件加载失败，请刷新页面重试。</p>';
+                    });
+                } catch (e) {
+                    console.error('初始化邮箱验证控件失败:', e);
+                    document.getElementById('emailHumanCheckContainer').innerHTML = 
+                        '<p style="color: red;">人机验证控件加载失败，请刷新页面重试。</p>';
+                }
             }
-        };
-        
+        }
+
+        // 显示短信验证弹窗
+        function showPhoneVerification() {
+            document.getElementById('phoneModal').style.display = 'flex';
+            
+            // 如果还没有初始化，则创建控件
+            if (!phoneHumanCheck) {
+                try {
+                    phoneHumanCheck = new CrossBrowserHumanCheck('phoneHumanCheckContainer', {
+                        onVerificationComplete: function(isVerified) {
+                            document.getElementById('<%= hdnPhoneVerified.ClientID %>').value = isVerified.toString();
+                            
+                            var statusElement = document.getElementById('phoneStatus');
+                            if (isVerified) {
+                                statusElement.textContent = '短信验证：已通过';
+                                statusElement.className = 'status-text status-verified';
+                                showResult('短信人机验证通过！', true);
+                                setTimeout(function() {
+                                    closePhoneModal();
+                                }, 1500);
+                            } else {
+                                statusElement.textContent = '短信验证：验证失败';
+                                statusElement.className = 'status-text';
+                                showResult('短信人机验证失败，请重试！', false);
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error('初始化短信验证控件失败:', e);
+                    document.getElementById('phoneHumanCheckContainer').innerHTML = 
+                        '<p style="color: red;">人机验证控件加载失败，请刷新页面重试。</p>';
+                }
+            }
+        }
+
+        // 关闭邮箱验证弹窗
+        function closeEmailModal() {
+            document.getElementById('emailModal').style.display = 'none';
+        }
+
+        // 关闭短信验证弹窗
+        function closePhoneModal() {
+            document.getElementById('phoneModal').style.display = 'none';
+        }
+
+        // 点击遮罩层外部关闭弹窗
+        document.addEventListener('click', function(event) {
+            var emailModal = document.getElementById('emailModal');
+            var phoneModal = document.getElementById('phoneModal');
+            
+            if (event.target === emailModal) {
+                closeEmailModal();
+            }
+            if (event.target === phoneModal) {
+                closePhoneModal();
+            }
+        });
+
         // 显示结果消息
         function showResult(message, isSuccess) {
             var resultDiv = document.getElementById('resultMessage');
