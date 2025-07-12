@@ -269,6 +269,9 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.6);
+        /* IE8/IE9 fallback */
+        background: #000000;
+        filter: alpha(opacity=60);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -276,19 +279,60 @@
         backdrop-filter: blur(3px);
     }
     
+    /* IE8/IE9 居中方案 */
+    .ie8 .verification-modal,
+    .ie9 .verification-modal {
+        display: block;
+        text-align: center;
+    }
+    
+    .ie8 .verification-modal:before,
+    .ie9 .verification-modal:before {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        width: 0;
+    }
+    
     .modal-content {
+        background: #ffffff;
+        /* IE8/IE9 渐变fallback */
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f8fafc');
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         border-radius: 12px;
+        /* IE8 border-radius fallback */
+        behavior: url(ie-css3.htc);
         box-shadow: 
             0 20px 40px rgba(0, 0, 0, 0.15),
             0 10px 20px rgba(0, 0, 0, 0.1),
             inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        /* IE8/IE9 shadow fallback */
+        filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=0, OffY=5, Color='#33000000', Positive='true');
         max-width: 420px;
         width: 90%;
         max-height: 80vh;
         overflow: hidden;
         position: relative;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid #e5e7eb;
+        /* IE8/IE9 居中 */
+        display: inline-block;
+        vertical-align: middle;
+        text-align: left;
+        margin: 0 auto;
+    }
+    
+    /* IE8/IE9 特定样式 */
+    .ie8 .modal-content,
+    .ie9 .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -200px; /* 约为高度的一半 */
+        margin-left: -210px; /* 约为宽度的一半 */
+        width: 420px;
+        display: block;
+        vertical-align: top;
     }
     
     .modal-header {
@@ -297,6 +341,21 @@
         align-items: center;
         padding: 24px 24px 0 24px;
         background: transparent;
+        *zoom: 1; /* IE7 clearfix */
+    }
+    
+    .modal-header:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    
+    /* IE8/IE9 header layout */
+    .ie8 .modal-header,
+    .ie9 .modal-header {
+        display: block;
+        position: relative;
+        height: 50px;
     }
     
     .modal-header h3 {
@@ -307,6 +366,15 @@
         text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
         border: none;
         padding: 0;
+        line-height: 50px;
+    }
+    
+    /* IE8/IE9 标题浮动 */
+    .ie8 .modal-header h3,
+    .ie9 .modal-header h3 {
+        float: left;
+        line-height: 36px;
+        margin-top: 7px;
     }
     
     .close-btn {
@@ -316,6 +384,9 @@
         line-height: 1;
         padding: 8px;
         background: rgba(255, 255, 255, 0.6);
+        /* IE8/IE9 fallback */
+        background: #f0f0f0;
+        filter: alpha(opacity=60);
         border: none;
         border-radius: 50%;
         width: 36px;
@@ -325,6 +396,16 @@
         justify-content: center;
         transition: all 0.2s ease;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* IE8/IE9 关闭按钮 */
+    .ie8 .close-btn,
+    .ie9 .close-btn {
+        float: right;
+        display: block;
+        text-align: center;
+        line-height: 20px;
+        margin-top: 7px;
     }
     
     .close-btn:hover {
@@ -420,7 +501,13 @@
     
     // 显示邮箱验证弹窗
     function showEmailVerificationModal() {
-        document.getElementById('emailVerificationModal').style.display = 'flex';
+        var modal = document.getElementById('emailVerificationModal');
+        // IE8/IE9 兼容性处理
+        if (document.body.className.indexOf('ie8') !== -1 || document.body.className.indexOf('ie9') !== -1) {
+            modal.style.display = 'block';
+        } else {
+            modal.style.display = 'flex';
+        }
         
         // 如果还没有初始化，则创建控件
         if (!emailHumanCheck) {
@@ -451,7 +538,13 @@
     
     // 显示手机验证弹窗
     function showPhoneVerificationModal() {
-        document.getElementById('phoneVerificationModal').style.display = 'flex';
+        var modal = document.getElementById('phoneVerificationModal');
+        // IE8/IE9 兼容性处理
+        if (document.body.className.indexOf('ie8') !== -1 || document.body.className.indexOf('ie9') !== -1) {
+            modal.style.display = 'block';
+        } else {
+            modal.style.display = 'flex';
+        }
         
         // 如果还没有初始化，则创建控件
         if (!phoneHumanCheck) {
@@ -503,11 +596,16 @@
         }
     };
     
-    // IE8 检测和样式调整
+    // IE8/IE9 检测和样式调整
     (function() {
         var isIE8 = navigator.userAgent.indexOf('MSIE 8') !== -1;
+        var isIE9 = navigator.userAgent.indexOf('MSIE 9') !== -1;
+        
         if (isIE8) {
             document.body.className += ' ie8';
+        }
+        if (isIE9) {
+            document.body.className += ' ie9';
         }
     })();
 </script>
